@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>EFEX — Dashboard (2 columnas)</title>
+<style>
+  :root {
+    --ink: #121212;
+    --ink-soft: rgba(18,18,18,0.62);
+    --ink-faint: rgba(18,18,18,0.38);
+    --accent: #EDF457;
+    --accent-ink: #4d5200;
+    --canvas: #F5F5F3;
+    --surface: #FFFFFF;
+    --line: rgba(18,18,18,0.09);
+    --good-bg: #E5F5EA;
+    --good-ink: #1C7A43;
+    --radius-lg: 18px;
+    --radius-pill: 999px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; font-family:var(--font); color:var(--ink); background:var(--canvas); }
+  body { font-size:14px; line-height:1.5; }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  .logo { font-weight:800; font-size:19px; letter-spacing:3px; margin-bottom:28px; }
+
+  .shell { min-height: 100vh; }
+  @media (max-width: 760px) { .sidebar { display:none; } .main { margin-left:0 !important; } }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--ink);
+    color:#fff;
+    padding: 24px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .sidebar a { display:block; padding:10px 12px; border-radius:10px; color:rgba(255,255,255,0.62); text-decoration:none; font-size:13.5px; border-left:3px solid transparent; }
+  .sidebar a.active { background:rgba(255,255,255,0.08); color:#fff; border-left-color:var(--accent); font-weight:600; }
+  .sidebar-promo { margin-top:auto; border:1px solid rgba(255,255,255,0.15); border-radius:14px; padding:14px 16px; font-size:12.5px; color:rgba(255,255,255,0.8); line-height:1.5; }
+  .sidebar-promo b { color: var(--accent); }
+  .sidebar-promo a { display:inline-block; margin-top:10px; background:var(--accent); color:var(--accent-ink); padding:6px 14px; border-radius:999px; font-size:12px; font-weight:700; text-decoration:none; }
+
+  .main { margin-left: 220px; padding: 28px; display:grid; grid-template-columns: 1fr 300px; gap: 20px; align-items:start; }
+  @media (max-width: 900px) { .main { grid-template-columns: 1fr; } }
+
+  .col { display:flex; flex-direction:column; gap:16px; }
+
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); padding:22px 24px; }
+  .eyebrow { font-size:11px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:var(--ink-faint); margin:0 0 10px; }
+
+  .balance-figure { font-size:28px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-0.01em; }
+  .balance-context { font-size:12.5px; color:var(--good-ink); margin: 4px 0 16px; }
+
+  .estado-card { border-color: rgba(18,18,18,0.08); background:var(--surface); border-left:4px solid var(--accent); box-shadow: 0 2px 10px rgba(18,18,18,0.06); display:flex; align-items:center; justify-content:space-between; gap:18px; flex-wrap:wrap; }
+  .estado-main { flex:1; min-width:220px; }
+  .estado-card .btn { flex-shrink:0; }
+  .estado-text { font-size:16px; font-weight:600; margin:0; max-width:70ch; }
+  .estado-greet { display:block; font-size:12.5px; font-weight:600; color:var(--ink-faint); margin-bottom:3px; }
+  .estado-rate { display:block; font-size:12px; font-weight:600; color:var(--good-ink); margin-bottom:4px; }
+  .btn { display:inline-flex; align-items:center; gap:6px; border-radius:var(--radius-pill); padding:10px 18px; font-size:13px; font-weight:700; border:none; cursor:pointer; text-decoration:none; background:var(--ink); color:#fff; white-space:nowrap; }
+  .btn-accent { background: var(--ink); color: #fff; }
+
+  .back-link { display:inline-block; font-size:12px; font-weight:600; color:var(--ink-faint); text-decoration:none; margin-bottom:16px; }
+  .back-link:hover { color:var(--ink); }
+
+  .landing { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:40px; }
+  .landing-inner { max-width:640px; width:100%; text-align:center; }
+  .landing .logo { margin:0 0 8px; }
+  .landing h1 { font-size:22px; margin:0 0 8px; }
+  .landing p { color:var(--ink-soft); font-size:14px; margin:0 0 32px; }
+  .landing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .landing-card { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:22px 16px; text-decoration:none; color:var(--ink); text-align:left; }
+  .landing-card:hover { border-color:var(--ink); }
+  .landing-card b { display:block; font-size:15px; margin-bottom:6px; }
+  .landing-card .brief { display:block; font-size:12.5px; color:var(--ink-soft); line-height:1.4; margin-bottom:10px; }
+  .landing-card .trigger { display:block; font-size:11px; font-weight:600; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.4px; }
+  @media (max-width:640px) { .landing-grid { grid-template-columns:1fr; } }
+  .screen { display:none; }
+  .screen.active { display:contents; }
+
+  .reconcile { font-size:12.5px; color:var(--ink-soft); margin-top:14px; }
+  .reconcile b { color:var(--ink); }
+
+  .tabs { font-size:12.5px; font-weight:700; color:var(--ink); border-bottom:2px solid var(--accent); display:inline-block; padding-bottom:6px; margin-bottom:14px; }
+  .globales-row { display:flex; gap:12px; overflow-x:auto; padding-bottom:4px; }
+  .gcuenta { flex:0 0 200px; border:1px solid var(--line); border-radius:14px; padding:16px; }
+  .gcuenta .tag { display:inline-block; background:var(--ink); color:var(--accent); font-size:10px; font-weight:700; padding:3px 8px; border-radius:6px; margin-bottom:8px; }
+  .gcuenta .head { font-size:11px; color:var(--ink-faint); margin-bottom:6px; }
+  .gcuenta .amt { font-size:16px; font-weight:700; margin-bottom:6px; }
+  .gcuenta .benefit { display:inline-block; background:var(--good-bg); color:var(--good-ink); font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; margin-bottom:6px; }
+  .gcuenta .rates { font-size:11px; color:var(--ink-soft); }
+  .gcuenta .link { display:block; font-size:11.5px; margin-top:8px; text-decoration:underline; color:var(--ink-soft); }
+
+  .mov-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid var(--line); }
+  .mov-row:last-child { border-bottom:none; padding-bottom:0; }
+  .mov-left { display:flex; align-items:center; gap:12px; }
+  .mov-icon { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--canvas); flex-shrink:0; }
+  .mov-icon svg { width:16px; height:16px; }
+  .mov-icon.out { color: var(--ink); }
+  .mov-icon.in { color: var(--good-ink); background: var(--good-bg); }
+  .mov-desc { font-size:13.5px; font-weight:600; }
+  .mov-date { font-size:11.5px; color:var(--ink-faint); margin-top:2px; }
+  .mov-amt { font-size:13.5px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .mov-amt.in { color: var(--good-ink); }
+
+  .notice { font-size:12.5px; color:var(--ink-soft); line-height:1.5; }
+  .notice b { color:var(--ink); }
+  .notice a { color:var(--ink); font-weight:600; text-decoration:underline; }
+
+  .qa-tiles { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:10px; }
+  .qa-tile { display:flex; flex-direction:column; align-items:center; text-align:center; gap:7px; padding:16px 6px; border-radius:14px; border:1px solid var(--line); background:var(--canvas); text-decoration:none; color:var(--ink); font-size:11px; font-weight:600; line-height:1.25; }
+  .qa-tile svg { width:22px; height:22px; }
+
+
+  .note { max-width: 70ch; margin: 24px 28px 40px; font-size:12.5px; color:var(--ink-soft); border-top:1px solid var(--line); padding-top:18px; }
+  .note b { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="ic-send" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 16L16 4M16 4H8M16 4V12"/>
+    </symbol>
+    <symbol id="ic-swap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 7h11m0 0-3.5-3.5M15 7l-3.5 3.5M16 13H5m0 0 3.5 3.5M5 13l3.5-3.5"/>
+    </symbol>
+    <symbol id="ic-link" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8.5 11.5a3.2 3.2 0 0 0 4.6.2l1.6-1.6a3.2 3.2 0 0 0-4.6-4.6l-1 1"/>
+      <path d="M11.5 8.5a3.2 3.2 0 0 0-4.6-.2l-1.6 1.6a3.2 3.2 0 0 0 4.6 4.6l1-1"/>
+    </symbol>
+    <symbol id="ic-receive" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 4L4 16M4 16H13M4 16V7"/>
+    </symbol>
+    <symbol id="ic-lock" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="9" width="10" height="7" rx="1.5"/>
+      <path d="M7 9V6.5a3 3 0 0 1 6 0V9"/>
+    </symbol>
+    <symbol id="ic-layers" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 3l7 4-7 4-7-4 7-4z"/>
+      <path d="M3 11l7 4 7-4"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="landing" id="landing">
+  <div class="landing-inner">
+    <div class="logo">EFEX</div>
+    <h1>Mockup del rediseño: 3 casos</h1>
+    <p>Cada link carga un dashboard completo, ya resuelto para ese cliente. No hay selector dentro del producto real, el sistema decide esto solo.</p>
+    <div class="landing-grid">
+      <a class="landing-card" href="?v=a"><b>Juan</b><span class="brief">Dueño-operador de un exportador agro, autoservicio. Sin especialista asignado, sin experiencia financiera formal.</span><span class="trigger">1–4 operaciones, antes del umbral de retención</span></a>
+      <a class="landing-card" href="?v=b"><b>María</b><span class="brief">Tesorera en una manufacturera con exposición cambiaria recurrente. Tiene un pago a proveedor agendado.</span><span class="trigger">Pago a proveedor ya agendado</span></a>
+      <a class="landing-card" href="?v=c"><b>AgroLog</b><span class="brief">Equipo de operaciones de una logística agrícola, paga a muchos productores cada semana desde una sola cuenta.</span><span class="trigger">Historial de pagos por lote</span></a>
+    </div>
+  </div>
+</div>
+
+<div class="shell" id="shell" style="display:none;">
+  <aside class="sidebar">
+    <div class="logo">EFEX</div>
+    <a class="active" href="#">Dashboard</a>
+    <a href="#">Ingresos</a>
+    <a href="#">Egresos</a>
+    <a href="#">Beneficiarios</a>
+    <a href="#">Mis cuentas</a>
+    <a href="#">Seguridad</a>
+    <div class="sidebar-promo"><b>¡Gana $250 USD</b> por referido<br><a href="#">Ver código</a></div>
+  </aside>
+
+  <main class="main">
+    <div style="grid-column:1/-1;">
+      <a class="back-link" href="?">← Ver los 3 casos</a>
+    </div>
+
+    <section class="screen active" id="screen-a">
+      <div class="col">
+        <div class="card estado-card">
+          <div class="estado-main">
+            <p class="estado-text"><span class="estado-greet">Hola, Juan.</span>¿Tienes otro pago pendiente esta semana?</p>
+          </div>
+          <a class="btn" href="#">Enviar Pago →</a>
+        </div>
+
+        <div class="card">
+          <p class="eyebrow">Balance combinado</p>
+          <div class="balance-figure">$432,804 MXN</div>
+          <div class="balance-context" style="margin-bottom:0;">+3% vs. la semana pasada</div>
+        </div>
+
+        <div class="card">
+          <span class="tabs">Cuentas globales</span>
+          <div class="globales-row">
+            <div class="gcuenta">
+              <span class="tag">2.5% anual</span>
+              <div class="head">EFEX Plus USD</div>
+              <div class="amt">182,450.75 USD</div>
+              <span class="benefit">Beneficio total: +80.28 USD</span>
+              <a class="link" href="#">Términos y condiciones</a>
+              <a class="link" href="#">Ver detalle</a>
+            </div>
+            <div class="gcuenta">
+              <div class="head">MXN balance</div>
+              <div class="amt">2,418,900.00 MXN</div>
+              <div class="rates">Compra USD: 17.26<br>Venta USD: 17.45</div>
+            </div>
+            <div class="gcuenta" style="display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:12px;text-align:center;">+1 cuenta sin actividad</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <p class="eyebrow">Últimos movimientos</p>
+          <div class="mov-row">
+            <div class="mov-left">
+              <div class="mov-icon in"><svg><use href="#ic-receive"></use></svg></div>
+              <div>
+                <div class="mov-desc">Cobro recibido · Cliente EE.UU.</div>
+                <div class="mov-date">12 jul 2026</div>
+              </div>
+            </div>
+            <div class="mov-amt in">+$8,500.00 USD</div>
+          </div>
+          <div class="mov-row">
+            <div class="mov-left">
+              <div class="mov-icon out"><svg><use href="#ic-send"></use></svg></div>
+              <div>
+                <div class="mov-desc">Pago enviado · Proveedor de empaque</div>
+                <div class="mov-date">3 jul 2026</div>
+              </div>
+            </div>
+            <div class="mov-amt">-$42,000.00 MXN</div>
+          </div>
+          <a href="#" style="display:block;text-align:center;font-size:12px;font-weight:600;text-decoration:underline;color:var(--ink-soft);margin-top:12px;">Ver todos los movimientos</a>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <p class="eyebrow">Acciones</p>
+          <div class="qa-tiles">
+            <a class="qa-tile" href="#"><svg><use href="#ic-send"></use></svg>Enviar Pago</a>
+            <a class="qa-tile" href="#"><svg><use href="#ic-swap"></use></svg>Transferir</a>
+            <a class="qa-tile" href="#"><svg><use href="#ic-link"></use></svg>Crear link<br>de cobro</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+            <p class="eyebrow" style="margin-bottom:0;">Avisos</p>
+            <button aria-label="Descartar aviso" style="background:none;border:none;color:var(--ink-faint);font-size:15px;line-height:1;cursor:pointer;padding:2px;">×</button>
+          </div>
+          <p class="notice" style="margin-top:10px;"><b>Actualización:</b> tus transferencias en MXN ahora se procesan con MexPago. Desde el 1 de abril, cualquier envío a la cuenta anterior (STP) se devuelve en máx. 2 días hábiles. <a href="#">Ver nueva cuenta CLABE</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-b">
+      <div class="col">
+        <div class="card estado-card">
+          <div class="estado-main">
+            <p class="estado-text"><span class="estado-greet">Hola, María.</span><span class="estado-rate">USD/MXN hoy: 17.46 (-1.2% esta semana)</span>Tienes un pago a proveedor en 45 días. ¿Aseguramos la tasa de hoy?</p>
+          </div>
+          <a class="btn btn-accent" href="#">Activar Rate Lock →</a>
+        </div>
+
+        <div class="card">
+          <p class="eyebrow">Balance combinado</p>
+          <div class="balance-figure">$2,710,132 MXN</div>
+          <div class="balance-context" style="margin-bottom:0;">+1% vs. tu promedio mensual</div>
+        </div>
+
+        <div class="card">
+          <span class="tabs">Cuentas globales</span>
+          <div class="globales-row">
+            <div class="gcuenta">
+              <div class="head">USD balance</div>
+              <div class="amt">84,200.00 USD</div>
+              <div class="rates">Compra MXN: 17.26<br>Venta MXN: 17.45</div>
+            </div>
+            <div class="gcuenta">
+              <div class="head">MXN balance</div>
+              <div class="amt">1,240,000.00 MXN</div>
+              <div class="rates">Compra USD: 17.26<br>Venta USD: 17.45</div>
+            </div>
+            <div class="gcuenta" style="display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:12px;text-align:center;">+1 cuenta sin actividad</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <p class="eyebrow">Últimos movimientos</p>
+          <div class="mov-row">
+            <div class="mov-left">
+              <div class="mov-icon in"><svg><use href="#ic-receive"></use></svg></div>
+              <div>
+                <div class="mov-desc">Cobro recibido · Cliente Guadalajara</div>
+                <div class="mov-date">20 jul 2026</div>
+              </div>
+            </div>
+            <div class="mov-amt in">+$22,000.00 USD</div>
+          </div>
+          <div class="mov-row">
+            <div class="mov-left">
+              <div class="mov-icon out"><svg><use href="#ic-send"></use></svg></div>
+              <div>
+                <div class="mov-desc">Pago enviado · Proveedor industrial</div>
+                <div class="mov-date">15 jul 2026</div>
+              </div>
+            </div>
+            <div class="mov-amt">-$310,000.00 MXN</div>
+          </div>
+          <a href="#" style="display:block;text-align:center;font-size:12px;font-weight:600;text-decoration:underline;color:var(--ink-soft);margin-top:12px;">Ver todos los movimientos</a>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <p class="eyebrow">Acciones</p>
+          <div class="qa-tiles" style="grid-template-columns: repeat(2, minmax(0,1fr));">
+            <a class="qa-tile" href="#"><svg><use href="#ic-send"></use></svg>Enviar Pago</a>
+            <a class="qa-tile" href="#"><svg><use href="#ic-lock"></use></svg>Rate Lock</a>
+            <a class="qa-tile" href="#"><svg><use href="#ic-layers"></use></svg>Pagos Masivos</a>
+            <a class="qa-tile" href="#"><svg><use href="#ic-link"></use></svg>Crear link<br>de cobro</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+            <p class="eyebrow" style="margin-bottom:0;">Avisos</p>
+            <button aria-label="Descartar aviso" style="background:none;border:none;color:var(--ink-faint);font-size:15px;line-height:1;cursor:pointer;padding:2px;">×</button>
+          </div>
+          <p class="notice" style="margin-top:10px;"><b>Actualización:</b> tus transferencias en MXN ahora se procesan con MexPago. Desde el 1 de abril, cualquier envío a la cuenta anterior (STP) se devuelve en máx. 2 días hábiles. <a href="#">Ver nueva cuenta CLABE</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-c">
+      <div class="col">
+        <div class="card estado-card">
+          <div class="estado-main">
+            <p class="estado-text"><span class="estado-greet">Hola, equipo AgroLog.</span>Hoy es viernes: ¿listo tu pago semanal a productores? La semana pasada ahorraste ~4h usando pagos masivos en vez de uno por uno.</p>
+          </div>
+          <a class="btn btn-accent" href="#">Iniciar Pagos Masivos →</a>
+        </div>
+
+        <div class="card">
+          <p class="eyebrow">Balance combinado</p>
+          <div class="balance-figure">$448,506 MXN</div>
+          <div class="balance-context" style="margin-bottom:0;">-10% vs. la semana pasada (pago a productores)</div>
+        </div>
+
+        <div class="card">
+          <span class="tabs">Cuentas globales</span>
+          <div class="globales-row">
+            <div class="gcuenta">
+              <div class="head">MXN balance</div>
+              <div class="amt">342,000.00 MXN</div>
+              <div class="rates">Compra USD: 17.26<br>Venta USD: 17.45</div>
+            </div>
+            <div class="gcuenta">
+              <div class="head">USD balance</div>
+              <div class="amt">6,100.00 USD</div>
+              <div class="rates">Compra MXN: 17.26<br>Venta MXN: 17.45</div>
+            </div>
+          </div>
+          <p class="reconcile">Último lote: <b>18 pagos</b> · 16 completados, 2 pendientes de confirmación bancaria</p>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <p class="eyebrow">Acciones</p>
+          <div class="qa-tiles">
+            <a class="qa-tile" href="#"><svg><use href="#ic-layers"></use></svg>Pagos Masivos</a>
+            <a class="qa-tile" href="#"><svg><use href="#ic-send"></use></svg>Enviar Pago</a>
+            <a class="qa-tile" href="#"><svg><use href="#ic-link"></use></svg>Crear link<br>de cobro</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+            <p class="eyebrow" style="margin-bottom:0;">Avisos</p>
+            <button aria-label="Descartar aviso" style="background:none;border:none;color:var(--ink-faint);font-size:15px;line-height:1;cursor:pointer;padding:2px;">×</button>
+          </div>
+          <p class="notice" style="margin-top:10px;"><b>Actualización:</b> tus transferencias en MXN ahora se procesan con MexPago. Desde el 1 de abril, cualquier envío a la cuenta anterior (STP) se devuelve en máx. 2 días hábiles. <a href="#">Ver nueva cuenta CLABE</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  var variant = new URLSearchParams(location.search).get("v");
+  var landing = document.getElementById("landing");
+  var shell = document.getElementById("shell");
+  var screens = document.querySelectorAll(".screen");
+
+  if (variant === "a" || variant === "b" || variant === "c") {
+    landing.style.display = "none";
+    shell.style.display = "";
+    screens.forEach(function (s) {
+      s.classList.toggle("active", s.id === "screen-" + variant);
+    });
+  } else {
+    landing.style.display = "";
+    shell.style.display = "none";
+  }
+</script>
+
+</body>
+</html>
